@@ -1,0 +1,2 @@
+mysql_user_password: "{{ lookup('password', '../../../credentials/' + inventory_hostname + '/' + user + '/mysql_password length=15 chars=ascii_letters,digits') }}"
+wordpress_admin_password: "{{ lookup('password', '../../../credentials/' + inventory_hostname + '/' + user + '/wordpress_password length=15 chars=ascii_letters,digits') }}"

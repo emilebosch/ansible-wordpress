@@ -1,0 +1,50 @@
+---
+- user: name={{user}} shell=/bin/bash home=/home/{{user}}
+- name: rsa_key {{user}}
+  authorized_key: user={{user}} key="{{rsa_key}}"
+
+- user: name=www-data append=yes groups="{{user}}"
+
+- lineinfile: dest=/home/{{user}}/.forward state=present line={{mail_forward}} create=yes owner={{user}} group={{user}}
+
+- file: path=/home/{{user}}/cache state=directory owner={{user}} group={{user}}
+- file: path=/home/{{user}}/public_html state=directory owner={{user}} group={{user}}
+- file: path=/home/{{user}}/log state=directory owner={{user}} group={{user}}
+
+- template: src=nginx.conf dest=/etc/nginx/sites-enabled/{{user}}
+  notify:
+  - restart nginx
+- template: src=php5-fpm-pool.conf dest=/etc/php5/fpm/pool.d/{{user}}.conf
+  notify:
+  - restart php5-fpm
+
+- copy: src=adminer.php dest=/home/{{user}}/public_html owner={{user}} group={{user}}
+
+- mysql_db: name={{user}} encoding=utf8 collation=utf8_general_ci state=present login_user=root login_password={{mysql_root_password}}
+- mysql_user: name={{user}} password={{mysql_user_password}} priv={{user}}.*:ALL state=present login_user=root login_password={{mysql_root_password}}
+
+- file: path=/home/{{user}}/bin state=directory
+  sudo_user: "{{user}}"
+
+- copy: src=wp-cli.phar dest=/home/{{user}}/bin/wp-cli.phar
+  sudo_user: "{{user}}"
+- file: path=/home/{{user}}/bin/wp-cli.phar mode=0755
+  sudo_user: "{{user}}"
+
+- lineinfile: "dest=/home/{{user}}/.profile state=present line='alias wp=\"wp-cli.phar --path=/home/{{user}}/public_html\"'"
+
+- command: /home/{{user}}/bin/wp-cli.phar core download
+    chdir=/home/{{user}}/public_html
+    creates=/home/{{user}}/public_html/index.php
+  sudo_user: "{{user}}"
+
+- command: /home/{{user}}/bin/wp-cli.phar --path='/home/{{user}}/public_html' core config --dbname='{{user}}' --dbuser='{{user}}' --dbpass='{{mysql_user_password}}'
+    creates=/home/{{user}}/public_html/wp-config.php
+  sudo_user: "{{user}}"
+
+- command: /home/{{user}}/bin/wp-cli.phar --path='/home/{{user}}/public_html' core config --dbname='{{user}}' --dbuser='{{user}}' --dbpass='{{mysql_user_password}}'
+    creates=/home/{{user}}/public_html/wp-config.php
+  sudo_user: "{{user}}"
+
+- command: /home/{{user}}/bin/wp-cli.phar --path='/home/{{user}}/public_html' core install --url='{{domain}}' --title='{{wordpress_title}}' --admin_user='{{wordpress_admin_user}}' --admin_password='{{wordpress_admin_password}}' --admin_email='{{wordpress_admin_email}}'
+  sudo_user: "{{user}}"

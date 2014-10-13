@@ -1,0 +1,1 @@
+mysql_root_password: "{{ lookup('password', '../../../credentials/' + inventory_hostname + '/mysql_root_password length=15 chars=ascii_letters,digits') }}"

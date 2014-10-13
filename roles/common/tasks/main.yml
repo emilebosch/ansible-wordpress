@@ -1,0 +1,24 @@
+- hostname: name={{domain}}
+
+- locale_gen: name={{locale}} state=present
+- template: src=environment dest=/etc/environment
+
+- name: set /etc/localtime to {{timezone}}
+  file: state=link src=/usr/share/zoneinfo/{{timezone}} path=/etc/localtime force=yes
+
+# - include: swap.yml swap_size=2G
+
+- apt: update_cache=yes upgrade=yes cache_valid_time=3600
+
+- apt: name={{item}}
+  with_items:
+    - unattended-upgrades
+
+- copy: src=apt-10periodic dest=/etc/apt/apt.conf.d/10periodic
+- copy: src=apt-50unattended-upgrades dest=/etc/apt/apt.conf.d/50unattended-upgrades
+
+- lineinfile: dest=/root/.forward state=present line='{{root_forward}}' create=yes
+
+- lineinfile: dest=/etc/login.defs state=present line="UMASK 027" regexp='^UMASK\s' create=yes
+
+- lineinfile: dest=/etc/adduser.conf state=present line="DIR_MODE=0750" regexp='^DIR_MODE=' create=yes

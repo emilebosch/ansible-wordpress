@@ -1,0 +1,9 @@
+domain: wordpress.wptransit.com
+hostname: wp2.wptransit.com
+
+user: wordpress
+wordpress_title: WordPress
+wordpress_admin_user: wordpress
+wordpress_admin_email: "{{ lookup('env', 'WORDPRESS_EMAIL') }}"
+
+mail_forward: "{{wordpress_admin_email}}"

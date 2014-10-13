@@ -1,0 +1,2 @@
+rsa_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+root_forward: "{{ lookup('env', 'WORDPRESS_EMAIL') }}"

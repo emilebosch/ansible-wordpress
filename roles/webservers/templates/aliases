@@ -1,0 +1,4 @@
+# See man 5 aliases for format
+admin: root@{{domain}}
+info: root@{{domain}}
+postmaster: root@{{domain}}

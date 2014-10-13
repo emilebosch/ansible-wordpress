@@ -1,0 +1,11 @@
+[amsterdam]
+wp1.wptransit.com
+wp2.wptransit.com
+
+[webservers]
+wp1.wptransit.com
+wp2.wptransit.com
+
+[wordpress]
+wp1.wptransit.com
+wp2.wptransit.com

@@ -1,0 +1,43 @@
+---
+- debconf: name=debconf question='postfix/main_mailer_type' value='Internet site' vtype=string
+- debconf: name=postfix question='postfix/root_address' value="{{domain}}" vtype=string
+
+- apt: name={{item}} force=yes
+  with_items:
+  - postfix
+  - mailutils
+  - opendkim
+  - opendkim-tools
+
+- template: src=aliases dest=/etc/aliases
+  notify:
+  - newaliases
+  - restart postfix
+
+# OpenDKIM
+
+- file: dest=/etc/opendkim/keys state=directory
+
+- file: dest=/etc/opendkim/keys/{{domain}} state=directory
+
+- command: opendkim-genkey -s mail -d {{domain}} -D /etc/opendkim/keys/{{domain}} creates=/etc/opendkim/keys/{{domain}}/mail.private
+
+- file: path=/etc/opendkim/keys/{{domain}}/mail.private owner=opendkim group=opendkim
+
+- template: src=opendkim/TrustedHosts dest=/etc/opendkim/TrustedHosts
+  notify: restart opendkim
+- template: src=opendkim/KeyTable dest=/etc/opendkim/KeyTable
+  notify: restart opendkim
+- template: src=opendkim/SigningTable dest=/etc/opendkim/SigningTable
+  notify: restart opendkim
+
+- copy: src=opendkim.conf dest=/etc/opendkim.conf
+  notify: restart opendkim
+- lineinfile: dest=/etc/default/opendkim state=present line='SOCKET="inet:12301@localhost"'
+  notify: restart opendkim
+
+- lineinfile: dest=/etc/postfix/main.cf state=present line='milter_protocol = 2'
+- lineinfile: dest=/etc/postfix/main.cf state=present line='milter_default_action = accept'
+- lineinfile: dest=/etc/postfix/main.cf state=present line='smtpd_milters = inet:localhost:12301'
+- lineinfile: dest=/etc/postfix/main.cf state=present line='non_smtpd_milters = inet:localhost:12301'
+  notify: restart postfix

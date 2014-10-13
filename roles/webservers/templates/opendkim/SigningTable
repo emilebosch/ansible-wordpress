@@ -1,0 +1,2 @@
+*@*.{{domain}} mail._domainkey.{{domain}}
+*@{{domain}} mail._domainkey.{{domain}}

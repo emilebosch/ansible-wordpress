@@ -1,0 +1,12 @@
+---
+- hosts: webservers
+  sudo: yes
+  gather_facts: true
+  roles:
+    - common
+    - webservers
+
+- hosts: wordpress
+  sudo: yes
+  roles:
+    - wordpress

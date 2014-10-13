@@ -1,0 +1,9 @@
+domain: woocommerce.wptransit.com
+hostname: wp1.wptransit.com
+
+user: woocommerce
+wordpress_title: WooCommerce
+wordpress_admin_user: woocommerce
+wordpress_admin_email: "{{ lookup('env', 'WORDPRESS_EMAIL') }}"
+
+mail_forward: "{{wordpress_admin_email}}"
